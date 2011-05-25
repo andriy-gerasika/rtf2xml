@@ -12,8 +12,6 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
-import net.sf.joost.trax.TransformerFactoryImpl;
-
 import org.antlr.runtime.ANTLRFileStream;
 import org.antlr.runtime.CharStream;
 import org.antlr.runtime.CommonTokenStream;
@@ -45,14 +43,8 @@ public class RtfToXml {
 		RTFParser parser = new RTFParser(input);
 		CommonTree tree = (CommonTree) parser.rtf().getTree();
 
-		TransformerHandler handler;
-		if (false) {
-			SAXTransformerFactory handlerFactory = new TransformerFactoryImpl();
-			handler = handlerFactory.newTransformerHandler(new StreamSource(RtfToXml.class.getResourceAsStream("rtf2xml.stx")));
-		} else {
-			SAXTransformerFactory handlerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
-			handler = handlerFactory.newTransformerHandler(new StreamSource(RtfToXml.class.getResourceAsStream("rtf2xml.xsl")));
-		}
+		SAXTransformerFactory handlerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+		TransformerHandler handler = handlerFactory.newTransformerHandler();
 		handler.setResult(new StreamResult(xmlFile));
 		handler.startDocument();
 		try {
