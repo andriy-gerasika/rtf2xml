@@ -24,8 +24,8 @@ rtf : group;
 group : '{' group_+ '}' -> ^(XML_ELEMENT["group"] group_+);
 group_: group|control|text;
 
-control : CODE -> ^(XML_ELEMENT["control"] CODE);
-fragment CODE : '\\'{setText("");} ('a'..'z'|'A'..'Z'|'0'..'9')+;// {setText(getText().substring(2));};
+control : CODE;
+CODE : '\\' ('a'..'z'|'A'..'Z'|'0'..'9')+ {setText(getText().substring(1));};
 
 text: Text;
 Text: CHAR+;
