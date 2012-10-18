@@ -1,0 +1,14 @@
+<project name="css2xml" default="dist">
+
+	<target name="clean">
+		<delete dir="dist" />
+	</target>
+
+	<target name="dist" depends="clean">
+		<mkdir dir="dist" />
+		<zip zipfile="dist/${ant.project.name}.zip">
+			<fileset excludes="bin/**, dist/**, build/**, dist.xml, tests/*.xml, lib/**/*.jar" dir="."/>
+		</zip>
+	</target>
+
+</project>
