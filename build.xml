@@ -1,0 +1,40 @@
+<project name="rtf2xml" default="main">
+	<property name="main-class" value="com.gerixsoft.rtf2xml.RtfToXml" />
+
+	<path id="classpath">
+		<fileset dir="lib" includes="**/*.jar" />
+	</path>
+
+	<target name="clean">
+		<delete dir="build" />
+	</target>
+
+	<target name="compile">
+		<mkdir dir="build/classes" />
+		<javac srcdir="src" destdir="build/classes" classpathref="classpath" />
+		<copy todir="build/classes">
+			<fileset dir="src" includes="**/*.xsd" />
+		</copy>
+	</target>
+
+	<target name="jar" depends="compile">
+		<jar destfile="build/${ant.project.name}.jar" basedir="build/classes">
+			<manifest>
+				<attribute name="Main-Class" value="${main-class}" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="test" depends="jar">
+		<java fork="true" classname="${main-class}">
+			<classpath>
+				<path refid="classpath" />
+				<path location="build/${ant.project.name}.jar" />
+			</classpath>
+			<arg file="tests" />
+			<arg file="tests" />
+		</java>
+	</target>
+
+	<target name="main" depends="clean,test" />
+</project>

@@ -7,6 +7,6 @@
 <listEntry value="1"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.gerixsoft.rtf2xml.RtfToXml"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="files/input.rtf&#10;files/output.xml"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="tests&#10;tests"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="rtf2xml"/>
 </launchConfiguration>

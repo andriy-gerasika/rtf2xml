@@ -31,21 +31,46 @@ public class RtfToXml {
 
 	public static void main(String[] args) throws IOException, RecognitionException, SAXException, TransformerConfigurationException {
 		if (args.length != 2) {
-			System.err.println("usage: <rtf-file> <xml-file>");
+			System.err.println("usage: <input-rtf-file-or-directory> <output-xml-file-or-directory>");
 			System.exit(-1);
 		}
-		File jsonFile = new File(args[0]);
-		File xmlFile = new File(args[1]);
+		RtfToXml rtf2xml = new RtfToXml(true);
+		rtf2xml.transform(new File(args[0]), new File(args[1]));
+		System.out.println("ok");
+	}
 
-		CharStream stream = new ANTLRFileStream(jsonFile.toString());
+	private Validator validator;
+
+	public RtfToXml(boolean validate) throws SAXException {
+		if (validate) {
+			SchemaFactory schemaFactory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
+			Schema schema = schemaFactory.newSchema(new StreamSource(RtfToXml.class.getResourceAsStream("rtf.xsd")));
+			validator = schema.newValidator();
+			validator.setErrorHandler(new __ErrorHandler());
+		}
+	}
+
+	public void transform(File input, File output) throws IOException, RecognitionException, SAXException, TransformerConfigurationException {
+		if (input.isDirectory()) {
+			output.mkdir();
+			for (File child : input.listFiles()) {
+				if (child.isDirectory()) {
+					transform(child, new File(output, child.getName()));
+				} else if (child.getName().endsWith(".rtf")) {
+					transform(child, new File(output, child.getName().concat(".xml")));
+				}
+			}
+			return;
+		}
+		CharStream stream = new ANTLRFileStream(input.toString());
 		RTFLexer lexer = new RTFLexer(stream);
-		TokenStream input = new CommonTokenStream(lexer);
-		RTFParser parser = new RTFParser(input);
+		TokenStream tokenStream = new CommonTokenStream(lexer);
+		RTFParser parser = new RTFParser(tokenStream);
 		CommonTree tree = (CommonTree) parser.rtf().getTree();
 
 		SAXTransformerFactory handlerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
 		TransformerHandler handler = handlerFactory.newTransformerHandler();
-		handler.setResult(new StreamResult(xmlFile));
+		handler.setResult(new StreamResult(output));
 		handler.startDocument();
 		try {
 			TreeVisitor visitor = new TreeVisitor();
@@ -53,14 +78,9 @@ public class RtfToXml {
 		} finally {
 			handler.endDocument();
 		}
-
-		SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
-		Schema schema = factory.newSchema(new StreamSource(RtfToXml.class.getResourceAsStream("rtf.xsd")));
-		Validator validator = schema.newValidator();
-		validator.setErrorHandler(new __ErrorHandler());
-		validator.validate(new StreamSource(xmlFile));
-
-		System.out.println("ok");
+		if (validator != null) {
+			validator.validate(new StreamSource(output));
+		}
 	}
 
 	private static final class __TreeVisitorAction implements TreeVisitorAction {
@@ -81,7 +101,7 @@ public class RtfToXml {
 				if (name.equals(name.toUpperCase())) {
 					handler.startElement("", text, text, new AttributesImpl());
 				} else {
-					//handler.processingInstruction("antlr", text);
+					// handler.processingInstruction("antlr", text);
 					handler.characters(text.toCharArray(), 0, text.length());
 				}
 			} catch (SAXException e) {
